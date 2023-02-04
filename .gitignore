@@ -1,0 +1,9 @@
+bin/*
+*data/*
+lib*
+lib64*
+models*
+*.cfg
+*.pyc
+share/*
+*/visualisation/*
