@@ -10,7 +10,7 @@
 *.pyc
 
 # ignore experimental data
-/data/processed/mnt
+/data/processed/*
 
 
 # ignore output folders
