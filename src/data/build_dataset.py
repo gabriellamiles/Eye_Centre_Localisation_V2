@@ -42,7 +42,7 @@ def combine_dataframes(updated_eye_centre_filepaths, bounding_box_folder, save_f
 
     for eye_centre_filepath in updated_eye_centre_filepaths:
         # get corresponding bounding box filepath
-        bounding_box_filepath = eye_centre_filepath.replace("centres", "bounding_boxes")
+        bounding_box_filepath = eye_centre_filepath.replace("combined_centres", "bounding_boxes")
         # load eye centre and corresponding bounding box dfs
         eye_centre_df = pd.read_csv(eye_centre_filepath)
         bounding_box_df = pd.read_csv(bounding_box_filepath)
@@ -72,32 +72,49 @@ def combine_dataframes(updated_eye_centre_filepaths, bounding_box_folder, save_f
             rx = int(eye_centre_df["rx"][count])
             ry = int(eye_centre_df["ry"][count])
 
-            combined_list.append([row, LE_left, LE_top, LE_right, LE_bottom, RE_left, RE_top, RE_right, RE_bottom, lx, ly, rx, ry])
+            # calculate relative eye centres
+            relative_lx = lx-LE_left
+            relative_ly = ly-LE_top
+            relative_rx = rx-RE_left
+            relative_ry = ry-RE_top
+
+            combined_list.append([row, LE_left, LE_top, LE_right, LE_bottom, RE_left, RE_top, RE_right, RE_bottom, lx, ly, rx, ry, relative_lx, relative_ly, relative_rx, relative_ry])
 
             count += 1
 
-        combined_df = pd.DataFrame(combined_list, columns=["filename", "LE_left", "LE_top", "LE_right", "LE_bottom", "RE_left", "RE_top", "RE_right", "RE_bottom", "lx", "ly", "rx", "ry"])
+        combined_df = pd.DataFrame(combined_list, columns=["filename", "LE_left", "LE_top", "LE_right", "LE_bottom", "RE_left", "RE_top", "RE_right", "RE_bottom", "lx", "ly", "rx", "ry", "relative_lx", "relative_ly", "relative_rx", "relative_ry"])
+
+        # print("Removing blinks:")
+        # print(combined_df.shape)
+
+        no_blinks_df = combined_df[combined_df["lx"]!=1]
+        # print(no_blinks_df.shape)
 
         save_under = eye_centre_filepath.split("/")[-1]
+        print(save_under)
         save_under = os.path.join(save_folder, save_under)
-
-        combined_df.to_csv(save_under)
+        print(save_under)
+        no_blinks_df.to_csv(save_under)
 
 if __name__ == '__main__':
 
     # retrieve filepath for directories containing bounding box and eye centre coordinates, respectively
+    print("[INFO] Initialising key filepaths...")
     bounding_box_folder = os.path.join(os.getcwd(), "data", "raw", "bounding_boxes")
-    eye_centre_folder = os.path.join(os.getcwd(), "data", "raw", "centres")
+    eye_centre_folder = os.path.join(os.getcwd(), "data", "raw", "combined_centres")
     save_folder = os.path.join(os.getcwd(), "data", "processed", "combined_labels")# folder for storing combined dataframes
 
     # obtain lists of all eye centre, and bounding box label csv files
     eye_centre_filepaths = retrieve_csv_filepaths_from_directory(eye_centre_folder)
+    print(len(eye_centre_filepaths))
 
     # compare list for similarities
-    updated_eye_centre_filepaths = compare_directory_for_common_participants(eye_centre_filepaths, bounding_box_folder, replacement=("centres","bounding_boxes"))
+    updated_eye_centre_filepaths = compare_directory_for_common_participants(eye_centre_filepaths, bounding_box_folder, replacement=("combined_centres","bounding_boxes"))
+    print(len(updated_eye_centre_filepaths))
 
     # load dataframes of common participants
     eye_centre_dfs = load_csv_files_from_list(updated_eye_centre_filepaths)
+    print(len(eye_centre_dfs))
 
     # build new dataframe of existing eye centre data + corresponding dataframe for bounding boxes with relative coordinates in addition
     combined_ec_bb_df = combine_dataframes(updated_eye_centre_filepaths, bounding_box_folder, save_folder)

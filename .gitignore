@@ -1,9 +1,26 @@
-bin/*
-*data/*
-lib*
-lib64*
-models*
+# ignore virtual environment
+/bin
+/include
+/lib
+/lib64
+/notebooks
+/share
+/venv
 *.cfg
 *.pyc
-share/*
-*/visualisation/*
+
+# ignore experimental data
+/data/processed/mnt
+
+
+# ignore output folders
+labelInspectionVideos*
+resultsInspectionVideos*
+
+# ignore output filetypes
+(*/__pycache__/*)
+*.csv*
+*.png*
+*.hdf5
+*models/*
+*.avi
