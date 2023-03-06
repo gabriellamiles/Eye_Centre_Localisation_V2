@@ -24,3 +24,4 @@ resultsInspectionVideos*
 *.hdf5
 *models/*
 *.avi
+*.jpg*
