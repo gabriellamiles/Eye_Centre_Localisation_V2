@@ -155,26 +155,6 @@ def get_corresponding_labels(labels_folder, img_folder):
 
     return corresponding_filepaths
 
-def load_csv_files_from_list(labels_filepaths):
-
-    list_of_df = []
-
-    for filepath in labels_filepaths:
-        df = pd.read_csv(filepath)[["filename", "LE_left", "LE_top", "LE_right", "LE_bottom", "RE_left", "RE_top", "RE_right", "RE_bottom","relative_lx", "relative_ly", "relative_rx", "relative_ry"]]
-        list_of_df.append(df)
-
-    return list_of_df
-
-def get_csv_filepaths_from_directory(directory):
-
-    list_of_filepaths = []
-
-    for file in os.listdir(directory):
-        if file[-4:] == ".csv":
-            list_of_filepaths.append(os.path.join(directory, file))
-
-    return list_of_filepaths
-
 def get_max_image_size(labels_df):
 
     max_height_all_df = []
