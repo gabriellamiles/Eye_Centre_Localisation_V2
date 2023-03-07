@@ -61,3 +61,6 @@ Inspired by [Cookie Cutter Data Science](https://github.com/drivendata/cookiecut
 │       └── labelInspectionVideos
 └──
 ```
+
+## To Obtain Training/Test Data
+1. Run `obtain_dataset.py`. This combines data from `labels_eme2` and `centres`, and stores the combined output of these folders at `raw/combined_labels`. Then bounding box coordinates are taken into account with full dataset (including eye centres, eye region, and relative to region eye centres) is saved at `processed/combined_labels`. **N.B.** Blinks are represented by [lx, ly, rx, ry] = [1, 1, 1, 1] so will show as negative for relative coordinates.
