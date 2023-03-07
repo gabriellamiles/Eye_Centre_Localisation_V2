@@ -14,6 +14,7 @@ class VGG_model:
     def __init__(
             self, 
             input_shape = None,
+            output_parameters = None,
             learning_rate = 1e-4,
             loss = "mse"
             ):
@@ -23,6 +24,11 @@ class VGG_model:
         else:
             self.input_shape = None
 
+        if output_parameters is not None:
+            self.output_parameters = output_parameters
+        else:
+            self.output_parameters = None
+    
         if learning_rate is not None:
             self.learning_rate = learning_rate
         else:
@@ -65,7 +71,7 @@ class VGG_model:
         bboxHead = Dense(128, activation="relu")(flatten)
         bboxHead = Dense(64, activation="relu")(bboxHead)
         bboxHead = Dense(32, activation="relu")(bboxHead)
-        bboxHead = Dense(4, activation="sigmoid")(bboxHead)
+        bboxHead = Dense(self.output_parameters, activation="sigmoid")(bboxHead)
         
         # construct the model we will fine-tune for bounding box regression
         self.model = Model(inputs=vgg.input, outputs=bboxHead)

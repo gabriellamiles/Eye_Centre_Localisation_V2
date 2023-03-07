@@ -3,7 +3,7 @@ import os
 # key filepaths
 root_folder = os.getcwd()
 square_img_folder = os.path.join(root_folder, "data", "processed", "mnt", "eme2_square_imgs")
-cropped_img_folder = os.path.join(root_folder, "data", "processed", "mnt", "cropped_imgs")
+cropped_img_folder = os.path.join(root_folder, "data", "processed", "mnt", "cropped_eye_imgs", "left_eye")
 label_folder = os.path.join(root_folder, "data", "processed", "combined_labels")
 test_split_save_location = os.path.join(root_folder, "data", "processed", "test_split.csv")
 
