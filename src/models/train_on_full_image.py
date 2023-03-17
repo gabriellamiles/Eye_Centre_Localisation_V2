@@ -20,18 +20,59 @@ if __name__ == '__main__':
 
     # for each fold, load images and train models
     for i in range(len(dataset.kf_train_indices)):
+        print(f"Fold: {i}")
         train_labels, val_labels = dataset.train_labels.iloc[dataset.kf_train_indices[i]], dataset.train_labels.iloc[dataset.kf_val_indices[i]]
         
         train_filenames, train_labels = train_labels[["filename"]], train_labels[config.eye_centre_cols]/960
         val_filenames, val_labels = val_labels[["filename"]], val_labels[config.eye_centre_cols]/960
 
-        # load corresponding images to train/validation sets
+        # load corresponding images at size (224, 224, 3)
         dataset.get_train_val_images(train_filenames=train_filenames, val_filenames=val_filenames)
-        train_imgs = (np.asarray(dataset.train_imgs)/255).astype(np.float32)
-        val_imgs = (np.asarray(dataset.val_imgs)/255).astype(np.float32)
-        
-        print(train_labels.shape, val_labels.shape, train_filenames.shape, val_filenames.shape, train_imgs.shape, val_imgs.shape)
+        train_imgs = (np.asarray(dataset.train_imgs)).astype(np.float32)
+        val_imgs = (np.asarray(dataset.val_imgs)).astype(np.float32)
 
-        # load models to train
+        # train models with default size of (224, 224, 3)
+        # vgg model
+        tf.keras.backend.clear_session()
+        # del vgg
         vgg = models.VGG_model((224, 224, 3), output_parameters=4)
         vgg.train_model(train_imgs, train_labels, val_imgs, val_labels)
+        vgg.plot_loss_curves()
+        
+
+        # resnet model
+        # resnet_50 = models.ResNet50_model((224, 224, 3), output_parameters=4)
+        # resnet_50.train_model(train_imgs, train_labels, val_imgs, val_labels)
+        # resnet_50.plot_loss_curves()
+
+
+    # for each fold, load images and train models
+    for i in range(len(dataset.kf_train_indices)):
+        print(f"Fold: {i}")
+        train_labels, val_labels = dataset.train_labels.iloc[dataset.kf_train_indices[i]], dataset.train_labels.iloc[dataset.kf_val_indices[i]]
+        
+        train_filenames, train_labels = train_labels[["filename"]], train_labels[config.eye_centre_cols]/960
+        val_filenames, val_labels = val_labels[["filename"]], val_labels[config.eye_centre_cols]/960
+
+        # load corresponding images at size (299, 299, 3)
+        dataset.get_train_val_images(train_filenames=train_filenames, val_filenames=val_filenames, target_size=(299, 299, 3))
+        train_imgs = np.asarray(dataset.train_imgs).astype(np.float32)
+        val_imgs = np.asarray(dataset.val_imgs).astype(np.float32)
+
+        # train models with default size of (299, 299, 3)
+        # inception model
+        inception = models.Inception_model((299, 299, 3), output_parameters=4)
+        inception.train_model(train_imgs, train_labels, val_imgs, val_labels)
+        inception.plot_loss_curves()
+
+        # inception with residual connections
+        inception_resnet_v2 = models.InceptionResNetV2((299, 299, 3), output_parameters=4)
+        inception_resnet_v2.train_model(train_imgs, train_labels, val_imgs, val_labels)
+        inception_resnet_v2.plot_loss_curves()
+
+        # xception model
+        xception = models.Xception_model((299, 299, 3))
+        xception.train_model(train_imgs, train_labels, val_imgs, val_labels)
+        xception.plot_loss_curves()
+
+        

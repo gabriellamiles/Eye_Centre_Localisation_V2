@@ -20,6 +20,8 @@ class Dataset():
         self.get_left_eye_centres()
         self.get_right_eye_centres()
         
+        print("Extracted eye centres...")
+
     def get_eye_centres(self):
         """ Returns absolute eye centres."""
         self.eye_centres = self.labels[["filename", "lx", "ly", "rx", "ry"]]
@@ -50,7 +52,6 @@ class Dataset():
         # add code to save test data set
         self.save_test_data()
 
-    
     def get_k_folds(self):
         """Split labels into specific folds of data as relevant"""
         self.kf = KFold(n_splits=5, random_state=42, shuffle=True)
@@ -62,7 +63,7 @@ class Dataset():
             self.kf_train_indices.append(train_index)
             self.kf_val_indices.append(val_index)
     
-    def get_train_val_images(self, train_filenames, val_filenames):
+    def get_train_val_images(self, train_filenames, val_filenames, target_size=(224, 224)):
 
         self.train_imgs, self.val_imgs = [], [] # initiate empty lists
         
@@ -75,8 +76,8 @@ class Dataset():
             
 
                 img_path = os.path.join(config.square_img_folder, filepath)
-                im = load_img(img_path, color_mode="rgb", target_size=(224, 224))
-                input_arr = img_to_array(im)/255.0
+                im = load_img(img_path, color_mode="rgb", target_size=target_size)
+                input_arr = img_to_array(im)
 
 
                 if count == 0:
@@ -105,7 +106,6 @@ class Dataset():
             updated_labels.append(updated_targets)
 
         return resized_imgs, updated_labels
-
 
     def resize_image_as_array(self, im, new_dim, targets, show_images=0):
 
