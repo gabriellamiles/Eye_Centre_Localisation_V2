@@ -74,3 +74,39 @@ def load_labels():
     combined_df = combine_list_into_single_df(list_label_df)
 
     return combined_df
+
+def test_configuration(filepath):
+
+    # determine what test we are currently on
+    test_configuration = pd.read_csv(filepath)
+    
+    # check existing save folders
+    completed_tests = os.listdir(os.path.join(os.getcwd(), "models"))
+    tests = [s for s in completed_tests if "test" in s]
+
+    # initialise dictionary of test parameters
+    test_parameters = {
+        "test_num" : 0,
+        "fold": 0,
+        "model": None,
+        "input_dim": 0,
+        "batch_size": 0,
+        "augmentation": None
+    }
+
+    if len(tests) == 0 :
+        # go straight to first test
+        test_parameters["fold"] = test_configuration.iloc[0, 1]
+        test_parameters["model"] = test_configuration.iloc[0, 2]
+        test_parameters["input_dim"] = test_configuration.iloc[0,3]
+        test_parameters["batch_size"] = test_configuration.iloc[0,4]
+        test_parameters["augmentation"] = test_configuration.iloc[0,5]
+    else:
+        test_parameters["test_num"] = len(tests)
+        test_parameters["fold"] = test_configuration.iloc[test_parameters["test_num"], 1]
+        test_parameters["model"] = test_configuration.iloc[test_parameters["test_num"], 2]
+        test_parameters["input_dim"] = test_configuration.iloc[test_parameters["test_num"],3]
+        test_parameters["batch_size"] = test_configuration.iloc[test_parameters["test_num"],4]
+        test_parameters["augmentation"] = test_configuration.iloc[test_parameters["test_num"],5]
+
+    return test_parameters

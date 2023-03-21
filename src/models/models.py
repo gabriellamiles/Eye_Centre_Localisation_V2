@@ -16,7 +16,9 @@ class DL_model():
     def __init__(
         self, 
         input_shape = None,
+        test_num = None,
         output_parameters = None,
+        batch_size=None,
         learning_rate = 1e-4,
         loss = "mse",
         ):
@@ -25,6 +27,11 @@ class DL_model():
             self.input_shape = input_shape
         else:
             self.input_shape = None
+
+        if test_num is not None:
+            self.test_num = str(test_num)
+        else:
+            self.test_num = None    
 
         if output_parameters is not None:
             self.output_parameters = output_parameters
@@ -41,18 +48,20 @@ class DL_model():
         else:
             self.loss = None
 
-        # initialise other parameters
-        self.batch_size = 16
-        self.epochs = 2
+        if batch_size is not None:
+            self.batch_size = batch_size
+        else:
+            self.batch_size = None
+
+        self.epochs = 25
 
     def initiate_callbacks(self):
         """ Function to initiate callbacks, allowing recording of intermediate training results
         which can be visualised on TensorBoard. """
 
-        self.subFolderLog = self.keyword + "_" + datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        self.subFolderLog = "test_" + self.test_num + "_" + self.keyword + "_" + datetime.datetime.now().strftime("%Y%m%d_%H%M%S") 
         tensorboardPath = os.path.join(os.getcwd(), "models", self.subFolderLog)
-        checkpointPath = os.path.join(os.getcwd(), "models" , self.subFolderLog)
-        checkpointPath = checkpointPath + "/" + self.keyword + "-weights-improve-{epoch:02d}-{val_loss:02f}.hdf5"
+        checkpointPath = os.path.join(os.getcwd(), "models" , self.subFolderLog, "{epoch:02d}-{val_loss:.4f}.hdf5")
         
         self.callbacks = [
             TensorBoard(log_dir=tensorboardPath, histogram_freq=0, write_graph=True, write_images=True),
@@ -70,14 +79,14 @@ class DL_model():
         plt.xlabel('Epoch')
         plt.legend(['train', 'val'], loc='upper left')
         plt.savefig(os.path.join(os.getcwd(), "models", self.subFolderLog, "loss_plot.png"))
-        plt.show()
+        # plt.show()
 
 class VGG_model(DL_model):
 
     """ Input shape default is (224, 224, 3) """
 
-    def __init__(self, input_shape=None, output_parameters=None, learning_rate=0.0001, loss="mse"):
-        super().__init__(input_shape, output_parameters, learning_rate, loss)
+    def __init__(self, input_shape=None, test_num = None, output_parameters=None, batch_size=None, learning_rate=0.0001, loss="mse"):
+        super().__init__(input_shape, test_num, output_parameters, batch_size, learning_rate, loss)
 
         self.keyword = "vgg"
 
@@ -131,8 +140,8 @@ class VGG_model(DL_model):
 class Inception_model(DL_model):
     """ Input to inception model has default shape of (299, 299, 3) and input pixels of between -1 and 1. """
 
-    def __init__(self, input_shape=None, output_parameters=None, learning_rate=0.0001, loss="mse"):
-        super().__init__(input_shape, output_parameters, learning_rate, loss)
+    def __init__(self, input_shape=None, test_num = None, output_parameters=None, batch_size=None, learning_rate=0.0001, loss="mse"):
+        super().__init__(input_shape, test_num, output_parameters, batch_size, learning_rate, loss)
 
         self.keyword = "inception"
 
@@ -190,8 +199,8 @@ class Inception_model(DL_model):
 class Xception_model(DL_model):
     """ Input to inception model has default shape of (299, 299, 3) and input pixels of between -1 and 1. """
 
-    def __init__(self, input_shape=None, output_parameters=None, learning_rate=0.0001, loss="mse"):
-        super().__init__(input_shape, output_parameters, learning_rate, loss)
+    def __init__(self, input_shape=None, test_num = None, output_parameters=None, batch_size=None, learning_rate=0.0001, loss="mse"):
+        super().__init__(input_shape, test_num, output_parameters, batch_size, learning_rate, loss)
 
         self.keyword = "xception"
 
@@ -251,8 +260,8 @@ class ResNet50_model(DL_model):
 
     """ Input shape default is (224, 224, 3) """
 
-    def __init__(self, input_shape=None, output_parameters=None, learning_rate=0.0001, loss="mse"):
-        super().__init__(input_shape, output_parameters, learning_rate, loss)
+    def __init__(self, input_shape=None, test_num = None, output_parameters=None, batch_size=None, learning_rate=0.0001, loss="mse"):
+        super().__init__(input_shape, test_num, output_parameters, batch_size, learning_rate, loss)
 
         self.keyword = "resnet50"
 
@@ -309,8 +318,8 @@ class ResNet50_model(DL_model):
 class InceptionResNetV2_model(DL_model):
     """ Input to inception model has default shape of (299, 299, 3) and input pixels of between -1 and 1. """
 
-    def __init__(self, input_shape=None, output_parameters=None, learning_rate=0.0001, loss="mse"):
-        super().__init__(input_shape, output_parameters, learning_rate, loss)
+    def __init__(self, input_shape=None, test_num = None, output_parameters=None, batch_size=None, learning_rate=0.0001, loss="mse"):
+        super().__init__(input_shape, test_num, output_parameters, batch_size, learning_rate, loss)
 
         self.keyword = "inception_resnet_v2"
 
