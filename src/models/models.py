@@ -126,16 +126,29 @@ class VGG_model(DL_model):
 
         self.model.compile(loss=self.loss, optimizer=self.opt)
 
-    def train_model(self, train_data, train_labels, val_data, val_labels):
+    def train_model(self, train_generator, val_generator):
 
         self.hist = self.model.fit(
-            train_data, train_labels,
-            validation_data=(val_data, val_labels),
+            train_generator,
+            validation_data=val_generator,
             batch_size = self.batch_size,
             epochs = self.epochs,
             callbacks = self.callbacks,
             verbose = 1
         )
+    
+    def predict_model(self, predict_generator):
+
+        y_pred = self.model.predict(
+            predict_generator,
+            batch_size=self.batch_size,
+            verbose=1
+        )
+
+        y_pred = y_pred*960 
+
+        return y_pred
+
 
 class Inception_model(DL_model):
     """ Input to inception model has default shape of (299, 299, 3) and input pixels of between -1 and 1. """
@@ -196,6 +209,18 @@ class Inception_model(DL_model):
             verbose = 1
         )
 
+    def predict_model(self, predict_generator):
+
+        y_pred = self.model.predict(
+            predict_generator,
+            batch_size=self.batch_size,
+            verbose=1
+        )
+
+        y_pred = y_pred*960 
+
+        return y_pred
+
 class Xception_model(DL_model):
     """ Input to inception model has default shape of (299, 299, 3) and input pixels of between -1 and 1. """
 
@@ -255,7 +280,17 @@ class Xception_model(DL_model):
             callbacks = self.callbacks,
             verbose = 1
         )
+    def predict_model(self, predict_generator):
 
+        y_pred = self.model.predict(
+            predict_generator,
+            batch_size=self.batch_size,
+            verbose=1
+        )
+
+        y_pred = y_pred*960 
+
+        return y_pred
 class ResNet50_model(DL_model):
 
     """ Input shape default is (224, 224, 3) """
@@ -314,6 +349,18 @@ class ResNet50_model(DL_model):
             callbacks = self.callbacks,
             verbose = 1
         )
+
+    def predict_model(self, predict_generator):
+
+        y_pred = self.model.predict(
+            predict_generator,
+            batch_size=self.batch_size,
+            verbose=1
+        )
+
+        y_pred = y_pred*960 
+
+        return y_pred
 
 class InceptionResNetV2_model(DL_model):
     """ Input to inception model has default shape of (299, 299, 3) and input pixels of between -1 and 1. """
@@ -374,3 +421,15 @@ class InceptionResNetV2_model(DL_model):
             callbacks = self.callbacks,
             verbose = 1
         )
+
+    def predict_model(self, predict_generator):
+
+        y_pred = self.model.predict(
+            predict_generator,
+            batch_size=self.batch_size,
+            verbose=1
+        )
+
+        y_pred = y_pred*960 
+
+        return y_pred
