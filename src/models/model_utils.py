@@ -75,13 +75,13 @@ def load_labels():
 
     return combined_df
 
-def test_configuration(filepath):
+def test_configuration(filepath, directory="models"):
 
     # determine what test we are currently on
     test_configuration = pd.read_csv(filepath)
     
     # check existing save folders
-    completed_tests = os.listdir(os.path.join(os.getcwd(), "models"))
+    completed_tests = os.listdir(os.path.join(os.getcwd(), directory))
     tests = [s for s in completed_tests if "test" in s]
 
     # initialise dictionary of test parameters
@@ -101,6 +101,7 @@ def test_configuration(filepath):
         test_parameters["input_dim"] = test_configuration.iloc[0,3]
         test_parameters["batch_size"] = test_configuration.iloc[0,4]
         test_parameters["augmentation"] = test_configuration.iloc[0,5]
+        test_parameters["eye"] = test_configuration.iloc[0, 6]
     else:
         test_parameters["test_num"] = len(tests)
         test_parameters["fold"] = test_configuration.iloc[test_parameters["test_num"], 1]
@@ -108,5 +109,6 @@ def test_configuration(filepath):
         test_parameters["input_dim"] = test_configuration.iloc[test_parameters["test_num"],3]
         test_parameters["batch_size"] = test_configuration.iloc[test_parameters["test_num"],4]
         test_parameters["augmentation"] = test_configuration.iloc[test_parameters["test_num"],5]
+        test_parameters["eye"] = test_configuration.iloc[test_parameters["test_num"], 6]
 
     return test_parameters

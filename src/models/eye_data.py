@@ -28,15 +28,15 @@ class Dataset():
 
     def get_left_eye_centres(self):
         """Returns only left eye centres (relative to bounding box)"""
-        self.left_eye_centres = self.labels[["filename", "relative_lx", "relative_ly"]]
+        self.left_eye_centres = self.labels[["filename", "lx", "ly", "relative_lx", "relative_ly"]]
     
     def get_right_eye_centres(self):
         """Returns only right eye centres (relative to bounding box)"""
-        self.right_eye_centres = self.labels[["filename", "relative_rx", "relative_ry"]]
+        self.right_eye_centres = self.labels[["filename", "rx", "ry", "relative_rx", "relative_ry"]]
 
     def get_train_val_test(self, labels=None):
         """ Function splits labels into train/validation/test labels. """
-
+        print("Hello")
         if labels is None:
             labels = self.labels
         # train/test/validation split -- 0.6/0.2/0.2
@@ -52,7 +52,7 @@ class Dataset():
         # add code to save test data set
         self.save_test_data()
 
-    def get_k_folds(self):
+    def get_k_folds(self, data=None):
         """Split labels into specific folds of data as relevant"""
         self.kf = KFold(n_splits=5, random_state=42, shuffle=True)
 
@@ -88,12 +88,11 @@ class Dataset():
 
             count += 1
     
-    def get_cropped_images(self, set_of_labels):
+    def get_cropped_images(self, set_of_labels, target_dim):
 
         resized_imgs, updated_labels = [], []
         
         for row in range(set_of_labels.shape[0]):
-
 
             filepath = set_of_labels.iloc[row, 0]
             targets = (set_of_labels.iloc[row, 1], set_of_labels.iloc[row, 2])
@@ -101,10 +100,15 @@ class Dataset():
             full_im_filepath = os.path.join(config.cropped_img_folder, filepath)
             im = Image.open(full_im_filepath)
 
-            resized_im, updated_targets = self.resize_image_as_array(im, 224, targets)
+            resized_im, updated_targets = self.resize_image_as_array(im, target_dim, targets)
+
             resized_imgs.append(resized_im)
             updated_labels.append(updated_targets)
 
+        # convert to numpy array for input to DL models
+        resized_imgs = np.array(resized_imgs)
+        updated_labels = np.array(updated_labels
+                                  )
         return resized_imgs, updated_labels
 
     def resize_image_as_array(self, im, new_dim, targets, show_images=0):
@@ -122,9 +126,11 @@ class Dataset():
         x = x/new_dim
         y = y/new_dim
 
-        if 224 < new_dim :
+        if new_dim < 224 :
             # resize images for ml input
             new_im = new_im.resize((224, 224))
+        elif new_dim > 224:
+            new_im = new_im.resize((new_dim, new_dim))
 
         if show_images:
             draw = ImageDraw.Draw(new_im)
@@ -139,3 +145,22 @@ class Dataset():
     def save_test_data(self):
         """ Saves csv file containing test split (filenames + targets)."""        
         self.test_labels.to_csv(config.test_split_save_location)
+
+    def remove_blinks(self):
+        """ Removes blinks from data """
+
+        self.eye_centres_no_blinks = self.eye_centres[(self.eye_centres["rx"] > 50) & (self.eye_centres["ly"] > 50) & (self.eye_centres["ry"] > 50)]
+
+    def remove_blinks_single_eye(self, eye_data, eye):
+
+        x = "lx"
+        y = "ly"
+
+        if eye == "right":
+            x = "rx"
+            y = "ry"
+
+        print(eye_data.columns)
+        print("*****************************")
+        self.single_eye_no_blinks = eye_data[(eye_data[x]>50) & (eye_data[y]>50)]
+        self.single_eye_no_blinks = self.single_eye_no_blinks[["filename", "relative_"+x, "relative_"+y]]

@@ -21,6 +21,7 @@ class DL_model():
         batch_size=None,
         learning_rate = 1e-4,
         loss = "mse",
+        directory="models"
         ):
     
         if input_shape is not None:
@@ -53,6 +54,11 @@ class DL_model():
         else:
             self.batch_size = None
 
+        if directory is not None:
+            self.directory = directory
+        else:
+            self.directory = None    
+
         self.epochs = 25
 
     def initiate_callbacks(self):
@@ -60,15 +66,15 @@ class DL_model():
         which can be visualised on TensorBoard. """
 
         self.subFolderLog = "test_" + self.test_num + "_" + self.keyword + "_" + datetime.datetime.now().strftime("%Y%m%d_%H%M%S") 
-        tensorboardPath = os.path.join(os.getcwd(), "models", self.subFolderLog)
-        checkpointPath = os.path.join(os.getcwd(), "models" , self.subFolderLog, "{epoch:02d}-{val_loss:.4f}.hdf5")
+        tensorboardPath = os.path.join(os.getcwd(), self.directory, self.subFolderLog)
+        checkpointPath = os.path.join(os.getcwd(), self.directory, self.subFolderLog, "{epoch:02d}-{val_loss:.4f}.hdf5")
         
         self.callbacks = [
             TensorBoard(log_dir=tensorboardPath, histogram_freq=0, write_graph=True, write_images=True),
             ModelCheckpoint(filepath=checkpointPath, monitor='val_loss', verbose=1, save_best_only=True, mode='min'),
         ]
 
-    def plot_loss_curves(self):
+    def plot_loss_curves(self, directory="models"):
         """Plots graph of training and validation loss """
 
         # loss plot
@@ -78,15 +84,15 @@ class DL_model():
         plt.ylabel('Loss')
         plt.xlabel('Epoch')
         plt.legend(['train', 'val'], loc='upper left')
-        plt.savefig(os.path.join(os.getcwd(), "models", self.subFolderLog, "loss_plot.png"))
+        plt.savefig(os.path.join(os.getcwd(), directory, self.subFolderLog, "loss_plot.png"))
         # plt.show()
 
 class VGG_model(DL_model):
 
     """ Input shape default is (224, 224, 3) """
 
-    def __init__(self, input_shape=None, test_num = None, output_parameters=None, batch_size=None, learning_rate=0.0001, loss="mse"):
-        super().__init__(input_shape, test_num, output_parameters, batch_size, learning_rate, loss)
+    def __init__(self, input_shape=None, test_num = None, output_parameters=None, batch_size=None, learning_rate=0.0001, loss="mse", directory="models"):
+        super().__init__(input_shape, test_num, output_parameters, batch_size, learning_rate, loss, directory)
 
         self.keyword = "vgg"
 
@@ -136,6 +142,18 @@ class VGG_model(DL_model):
             callbacks = self.callbacks,
             verbose = 1
         )
+
+    def train_model_memory(self, train_data, train_labels, val_data, val_labels):
+
+        self.hist = self.model.fit(
+            x=train_data,
+            y=train_labels,
+            validation_data=(val_data, val_labels),
+            batch_size = self.batch_size,
+            epochs = self.epochs,
+            callbacks = self.callbacks,
+            verbose = 1
+        )
     
     def predict_model(self, predict_generator):
 
@@ -149,12 +167,11 @@ class VGG_model(DL_model):
 
         return y_pred
 
-
 class Inception_model(DL_model):
     """ Input to inception model has default shape of (299, 299, 3) and input pixels of between -1 and 1. """
 
-    def __init__(self, input_shape=None, test_num = None, output_parameters=None, batch_size=None, learning_rate=0.0001, loss="mse"):
-        super().__init__(input_shape, test_num, output_parameters, batch_size, learning_rate, loss)
+    def __init__(self, input_shape=None, test_num = None, output_parameters=None, batch_size=None, learning_rate=0.0001, loss="mse", directory="models"):
+        super().__init__(input_shape, test_num, output_parameters, batch_size, learning_rate, loss, directory)
 
         self.keyword = "inception"
 
@@ -198,11 +215,11 @@ class Inception_model(DL_model):
                            optimizer=self.opt,
                            metrics=MeanSquaredError())
 
-    def train_model(self, train_data, train_labels, val_data, val_labels):
+    def train_model(self, train_generator, val_generator):
 
         self.hist = self.model.fit(
-            train_data, train_labels,
-            validation_data=(val_data, val_labels),
+            train_generator,
+            validation_data=val_generator,
             batch_size = self.batch_size,
             epochs = self.epochs,
             callbacks = self.callbacks,
@@ -217,15 +234,28 @@ class Inception_model(DL_model):
             verbose=1
         )
 
+    def train_model_memory(self, train_data, train_labels, val_data, val_labels):
+
+        self.hist = self.model.fit(
+            x=train_data,
+            y=train_labels,
+            validation_data=(val_data, val_labels),
+            batch_size = self.batch_size,
+            epochs = self.epochs,
+            callbacks = self.callbacks,
+            verbose = 1
+        )
+
         y_pred = y_pred*960 
 
         return y_pred
 
 class Xception_model(DL_model):
+
     """ Input to inception model has default shape of (299, 299, 3) and input pixels of between -1 and 1. """
 
-    def __init__(self, input_shape=None, test_num = None, output_parameters=None, batch_size=None, learning_rate=0.0001, loss="mse"):
-        super().__init__(input_shape, test_num, output_parameters, batch_size, learning_rate, loss)
+    def __init__(self, input_shape=None, test_num = None, output_parameters=None, batch_size=None, learning_rate=0.0001, loss="mse", directory="models"):
+        super().__init__(input_shape, test_num, output_parameters, batch_size, learning_rate, loss, directory)
 
         self.keyword = "xception"
 
@@ -270,16 +300,17 @@ class Xception_model(DL_model):
                            optimizer=self.opt,
                            metrics=MeanSquaredError())
 
-    def train_model(self, train_data, train_labels, val_data, val_labels):
+    def train_model(self, train_generator, val_generator):
 
         self.hist = self.model.fit(
-            train_data, train_labels,
-            validation_data=(val_data, val_labels),
+            train_generator,
+            validation_data=val_generator,
             batch_size = self.batch_size,
             epochs = self.epochs,
             callbacks = self.callbacks,
             verbose = 1
         )
+
     def predict_model(self, predict_generator):
 
         y_pred = self.model.predict(
@@ -291,12 +322,25 @@ class Xception_model(DL_model):
         y_pred = y_pred*960 
 
         return y_pred
+    
+    def train_model_memory(self, train_data, train_labels, val_data, val_labels):
+
+        self.hist = self.model.fit(
+            x=train_data,
+            y=train_labels,
+            validation_data=(val_data, val_labels),
+            batch_size = self.batch_size,
+            epochs = self.epochs,
+            callbacks = self.callbacks,
+            verbose = 1
+        )
+    
 class ResNet50_model(DL_model):
 
     """ Input shape default is (224, 224, 3) """
 
-    def __init__(self, input_shape=None, test_num = None, output_parameters=None, batch_size=None, learning_rate=0.0001, loss="mse"):
-        super().__init__(input_shape, test_num, output_parameters, batch_size, learning_rate, loss)
+    def __init__(self, input_shape=None, test_num = None, output_parameters=None, batch_size=None, learning_rate=0.0001, loss="mse", directory="models"):
+        super().__init__(input_shape, test_num, output_parameters, batch_size, learning_rate, loss, directory)
 
         self.keyword = "resnet50"
 
@@ -339,10 +383,22 @@ class ResNet50_model(DL_model):
 
         self.model.compile(loss=self.loss, optimizer=self.opt)
 
-    def train_model(self, train_data, train_labels, val_data, val_labels):
+    def train_model(self, train_generator, val_generator):
 
         self.hist = self.model.fit(
-            train_data, train_labels,
+            train_generator,
+            validation_data=val_generator,
+            batch_size = self.batch_size,
+            epochs = self.epochs,
+            callbacks = self.callbacks,
+            verbose = 1
+        )
+
+    def train_model_memory(self, train_data, train_labels, val_data, val_labels):
+
+        self.hist = self.model.fit(
+            x=train_data,
+            y=train_labels,
             validation_data=(val_data, val_labels),
             batch_size = self.batch_size,
             epochs = self.epochs,
@@ -365,8 +421,8 @@ class ResNet50_model(DL_model):
 class InceptionResNetV2_model(DL_model):
     """ Input to inception model has default shape of (299, 299, 3) and input pixels of between -1 and 1. """
 
-    def __init__(self, input_shape=None, test_num = None, output_parameters=None, batch_size=None, learning_rate=0.0001, loss="mse"):
-        super().__init__(input_shape, test_num, output_parameters, batch_size, learning_rate, loss)
+    def __init__(self, input_shape=None, test_num = None, output_parameters=None, batch_size=None, learning_rate=0.0001, loss="mse", directory="models"):
+        super().__init__(input_shape, test_num, output_parameters, batch_size, learning_rate, loss, directory)
 
         self.keyword = "inception_resnet_v2"
 
@@ -380,7 +436,6 @@ class InceptionResNetV2_model(DL_model):
         self.compile_model()
 
     def build_model(self):
-
 
         input_tensor=Input(shape=self.input_shape)
         x = tf.keras.applications.inception_resnet_v2.preprocess_input(input_tensor)
@@ -411,10 +466,22 @@ class InceptionResNetV2_model(DL_model):
                            optimizer=self.opt,
                            metrics=MeanSquaredError())
 
-    def train_model(self, train_data, train_labels, val_data, val_labels):
+    def train_model(self, train_generator, val_generator):
 
         self.hist = self.model.fit(
-            train_data, train_labels,
+            train_generator,
+            validation_data=val_generator,
+            batch_size = self.batch_size,
+            epochs = self.epochs,
+            callbacks = self.callbacks,
+            verbose = 1
+        )
+    
+    def train_model_memory(self, train_data, train_labels, val_data, val_labels):
+
+        self.hist = self.model.fit(
+            x=train_data,
+            y=train_labels,
             validation_data=(val_data, val_labels),
             batch_size = self.batch_size,
             epochs = self.epochs,
