@@ -22,7 +22,7 @@ from eye_data import Dataset
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.metrics import MeanSquaredError
 
-test_num = "41"
+test_num = "3"
 
 saved_model_filepaths = os.path.join(os.getcwd(), "models")
 all_saved_model_directories= os.listdir(saved_model_filepaths)
@@ -65,6 +65,8 @@ for row in range(config_df.shape[0]):
 
     # retrieve most recent saved model from that file
     saved_models = sorted([i for i in os.listdir(full_model_directory) if ".hdf5" in i])
+    print("iiiiiii")
+    print(saved_models)
     most_recent_model = ''
 
     try:

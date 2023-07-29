@@ -11,6 +11,8 @@
 
 # ignore experimental data
 /data/processed/*
+/data
+/two_eye_verification
 
 
 # ignore output folders

@@ -31,7 +31,6 @@ class eyeCentreData:
         else:
             self.bounding_columns = None
     
-
     def load_filepaths(self, list_of_folders=None):
         """
         Retrieve all filepaths as list of lists, where individual list represents the filepaths in each individual directory.
@@ -43,9 +42,8 @@ class eyeCentreData:
 
         for directory in list_of_folders:
             self.data_to_combine.append(retrieve_csv_filepaths_from_directory(directory))
-
-        
-    def compare_directory_for_common_participants(self, list_of_filepaths, replacement=(None, None)):
+   
+    def compare_directory_for_common_participants(self, replacement=(None, None)):
 
         """
         Function takes in list_of_filepaths which contains all files within a gven directory as a sublist
@@ -53,36 +51,29 @@ class eyeCentreData:
         replacement = tuple of values containing how to change filepaths to get stuff to work
         """
 
-        # initialise variables to store lists of matched and unmatched data
+        # # initialise variables to store lists of matched and unmatched data
         self.list_of_matched_data = []
         self.list_of_unmatched_data = []
 
-        for i in range(len(list_of_filepaths)):
+        grp_1 = self.data_to_combine[0]
+        grp_2 = self.data_to_combine[1]
 
-            # compare filepaths
-            for filepath in list_of_filepaths[i]:
+        for filepath in grp_1:
+            tmp_filepath = filepath.replace(replacement[0], replacement[1])
 
-                # if this is the first directory being accessed
-                if i == 0:
+            if tmp_filepath in grp_2:
+                self.list_of_matched_data.append(tmp_filepath)
+            else:
+                self.list_of_unmatched_data.append(tmp_filepath)
 
-                    for j in range(1, len(list_of_filepaths)):
-
-                        if filepath.replace(replacement[0], replacement[j]) in list_of_filepaths[i+j]:
-                            self.list_of_matched_data.append(filepath)
-                        else:
-                            self.list_of_unmatched_data.append(filepath)
-
-                else:
-
-                    for filepath in list_of_filepaths[i]:
-
-                        if filepath.replace(replacement[i], replacement[0]) in self.list_of_matched_data:
-                            continue
-                        else:
-                            self.list_of_unmatched_data.append(filepath)
+        for filepath in grp_2:
+            
+            if filepath in self.list_of_matched_data:
+                continue
+            else: 
+                self.list_of_unmatched_data.append(filepath)
 
         print(len(self.list_of_matched_data), len(self.list_of_unmatched_data))
-
 
     def save_unmatched_data(self, replacement_items=["centres", "labels_eme2"], to_replace="combined_centres"):
 
@@ -130,27 +121,37 @@ class eyeCentreData:
 
         for filepath in self.list_of_matched_data:
 
+            print(self.columns)
+            print(self.bounding_columns)
+            print(filepath)
+
             # load dataframes
-            centre_df = pd.read_csv(filepath)[self.columns]
-            box_df = pd.read_csv(filepath.replace(replacement[0], replacement[1]))[self.bounding_columns]
+            centre_df = pd.read_csv(filepath.replace("predictions", "combined_centres"))[self.columns]
+            box_df = pd.read_csv(filepath)[self.bounding_columns]
 
             # combine dataframes
             combined_list = []
             count = 0
 
+            # print(centre_df.head())
+
             for row in centre_df["filename"]:
 
                 corresponding_index = box_df.index[box_df["filename"]==row]
+                print(corresponding_index)
+
+                print(centre_df.head())
+                print(box_df.head())
 
                 # steal relevant info from bounding box df
-                LE_left = int(box_df["LE_left"][corresponding_index])
-                LE_top = int(box_df["LE_top"][corresponding_index])
-                LE_right = int(box_df["LE_right"][corresponding_index])
-                LE_bottom = int(box_df["LE_bottom"][corresponding_index])
-                RE_left = int(box_df["RE_left"][corresponding_index])
-                RE_top = int(box_df["RE_top"][corresponding_index])
-                RE_right = int(box_df["RE_right"][corresponding_index])
-                RE_bottom = int(box_df["RE_bottom"][corresponding_index])
+                LE_left = int(box_df["resized_LE_left"][corresponding_index])
+                LE_top = int(box_df["resized_LE_top"][corresponding_index])
+                LE_right = int(box_df["resized_LE_right"][corresponding_index])
+                LE_bottom = int(box_df["resized_LE_bottom"][corresponding_index])
+                RE_left = int(box_df["resized_RE_left"][corresponding_index])
+                RE_top = int(box_df["resized_RE_top"][corresponding_index])
+                RE_right = int(box_df["resized_RE_right"][corresponding_index])
+                RE_bottom = int(box_df["resized_RE_bottom"][corresponding_index])
 
                 # steal revelant info from centres df
                 lx = int(centre_df["lx"][count])
@@ -160,15 +161,26 @@ class eyeCentreData:
 
                 # calculate relative eye centres
                 relative_lx = lx-LE_left
+                if relative_lx < 0: 
+                    relative_lx = 0
+
                 relative_ly = ly-LE_top
+                if relative_ly < 0:
+                    relative_ly = 0
+                
                 relative_rx = rx-RE_left
+                if relative_rx < 0:
+                    relative_rx = 0
+
                 relative_ry = ry-RE_top
+                if relative_ry < 0:
+                    relative_ry = 0
 
                 combined_list.append([row, LE_left, LE_top, LE_right, LE_bottom, RE_left, RE_top, RE_right, RE_bottom, lx, ly, rx, ry, relative_lx, relative_ly, relative_rx, relative_ry])
 
                 count += 1 # increment
 
-            combined_df = pd.DataFrame(combined_list, columns=["filename", "LE_left", "LE_top", "LE_right", "LE_bottom", "RE_left", "RE_top", "RE_right", "RE_bottom", "lx", "ly", "rx", "ry", "relative_lx", "relative_ly", "relative_rx", "relative_ry"])
+            combined_df = pd.DataFrame(combined_list, columns=["filename", "relative_LE_left", "relative_LE_top", "relative_LE_right", "relative_LE_bottom", "relative_RE_left", "relative_RE_top", "relative_RE_right", "relative_RE_bottom", "lx", "ly", "rx", "ry", "relative_lx", "relative_ly", "relative_rx", "relative_ry"])
 
             save_under = filepath.split("/")[-1]
 
@@ -191,5 +203,5 @@ if __name__ == '__main__':
 
     # now sort out comparing data from combined labels to bounding box, and saving this data in processed/combined_labels
     dataset.load_filepaths(list_of_folders=[config.combined_eye_centre_folder, config.bounding_box_folder])
-    dataset.compare_directory_for_common_participants(dataset.data_to_combine, replacement=("combined_centres","bounding_boxes"))
-    dataset.save_final_dataset(replacement=("combined_centres","bounding_boxes"))
+    dataset.compare_directory_for_common_participants(replacement=("combined_centres","predictions"))
+    dataset.save_final_dataset(replacement=("final_dataset","bounding_boxes"))

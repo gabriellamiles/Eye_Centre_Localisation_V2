@@ -37,7 +37,7 @@ def load_images(img_root_folder):
 
     return img_folders
 
-def load_csv_files_from_list(labels_filepaths, columns=["filename", "LE_left", "LE_top", "LE_right", "LE_bottom", "RE_left", "RE_top", "RE_right", "RE_bottom", "lx", "ly", "rx", "ry", "relative_lx", "relative_ly", "relative_rx", "relative_ry"]):
+def load_csv_files_from_list(labels_filepaths, columns=["filename", "relative_LE_left", "relative_LE_top", "relative_LE_right", "relative_LE_bottom", "relative_RE_left", "relative_RE_top", "relative_RE_right", "relative_RE_bottom", "lx", "ly", "rx", "ry", "relative_lx", "relative_ly", "relative_rx", "relative_ry"]):
 
     list_of_df = []
 
@@ -69,7 +69,8 @@ def combine_list_into_single_df(list_of_df):
 def load_labels():
 
     # load labels
-    label_filepaths = get_csv_filepaths_from_directory(config.label_folder)
+    label_filepaths = get_csv_filepaths_from_directory(config.full_bb_ec_labels)
+    
     list_label_df = load_csv_files_from_list(label_filepaths)
     combined_df = combine_list_into_single_df(list_label_df)
 

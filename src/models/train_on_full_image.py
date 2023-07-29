@@ -12,7 +12,7 @@ from data_generator import CustomDataGenerator
 
 if __name__ == '__main__':
 
-    test_parameters = model_utils.test_configuration(os.path.join(os.getcwd(), "src", "models", "model_training_runs.csv"))
+    test_parameters = model_utils.test_configuration(os.path.join(os.getcwd(), "src", "models", "model_training_runs.csv"), directory="models")
     model_input_dim = (test_parameters["input_dim"], test_parameters["input_dim"], 3)
     test_num = test_parameters["test_num"]
     batch_size=int(test_parameters["batch_size"])

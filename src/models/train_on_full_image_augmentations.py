@@ -12,8 +12,7 @@ from data_generator import CustomDataGenerator
 
 if __name__ == '__main__':
 
-    print("hello")
-    test_parameters = model_utils.test_configuration(os.path.join(os.getcwd(), "src", "models", "augmentation_tests.csv"))
+    test_parameters = model_utils.test_configuration(os.path.join(os.getcwd(), "src", "models", "augmentation_tests.csv"), directory="models/augmentation")
     model_input_dim = (test_parameters["input_dim"], test_parameters["input_dim"], 3)
     test_num = test_parameters["test_num"]
     batch_size=int(test_parameters["batch_size"])
@@ -44,6 +43,7 @@ if __name__ == '__main__':
 
     # if augmentation is required use custom data generators
     eye_data_generator_train, eye_data_generator_val = None, None
+    print("Augmentation: " + str(augmentation))
     if "None" not in augmentation:
         eye_data_generator_train = CustomDataGenerator(
             batch_size=batch_size, 
@@ -109,18 +109,18 @@ if __name__ == '__main__':
     # load and train relevant model
     if test_parameters["model"] == "vgg":
         # load model to train
-        vgg = models.VGG_model(model_input_dim, test_num=test_num, output_parameters=4, batch_size=batch_size)
+        vgg = models.VGG_model(model_input_dim, test_num=test_num, output_parameters=4, batch_size=batch_size, directory="models/augmentation")
         if "None" not in augmentation:
             vgg.train_model(eye_data_generator_train, eye_data_generator_val)
         else:
             # train model with data loaded into memory 
             vgg.train_model_memory(train_images, train_labels, val_images, val_labels)
 
-        vgg.plot_loss_curves()
+        vgg.plot_loss_curves(directory="models/augmentation")
         
     elif test_parameters["model"] == "resnet50":    
         # resnet model
-        resnet_50 = models.ResNet50_model(model_input_dim, test_num=test_num, output_parameters=4, batch_size=batch_size)
+        resnet_50 = models.ResNet50_model(model_input_dim, test_num=test_num, output_parameters=4, batch_size=batch_size, directory="models/augmentation")
         
         if "None" not in augmentation:
             resnet_50.train_model(eye_data_generator_train, eye_data_generator_val)
@@ -128,11 +128,11 @@ if __name__ == '__main__':
             # train model with data loaded into memory 
             resnet_50.train_model_memory(train_images, train_labels, val_images, val_labels)
 
-        resnet_50.plot_loss_curves()
+        resnet_50.plot_loss_curves(directory="models/augmentation")
 
     elif test_parameters["model"] == "inception":
         # inception model
-        inception = models.Inception_model(model_input_dim, test_num=test_num, output_parameters=4, batch_size=batch_size)
+        inception = models.Inception_model(model_input_dim, test_num=test_num, output_parameters=4, batch_size=batch_size, directory="models/augmentation")
 
         if "None" not in augmentation:
             inception.train_model(eye_data_generator_train, eye_data_generator_val)
@@ -140,24 +140,24 @@ if __name__ == '__main__':
             # train model with data loaded into memory 
             inception.train_model_memory(train_images, train_labels, val_images, val_labels)
 
-        inception.plot_loss_curves()
+        inception.plot_loss_curves(directory="models/augmentation")
 
     elif test_parameters["model"] == "inception_resnet_v2":
         # inception with residual connections
-        inception_resnet_v2 = models.InceptionResNetV2_model(model_input_dim, test_num=test_num, output_parameters=4, batch_size=batch_size)
+        inception_resnet_v2 = models.InceptionResNetV2_model(model_input_dim, test_num=test_num, output_parameters=4, batch_size=batch_size, directory="models/augmentation")
         if "None" not in augmentation:
             inception_resnet_v2.train_model(eye_data_generator_train, eye_data_generator_val)
         else:
             # train model with data loaded into memory 
             inception_resnet_v2.train_model_memory(train_images, train_labels, val_images, val_labels)
-        inception_resnet_v2.plot_loss_curves()
+        inception_resnet_v2.plot_loss_curves(directory="models/augmentation")
 
     elif test_parameters["model"] == "xception":
         # xception model
-        xception = models.Xception_model(model_input_dim, test_num=test_num, output_parameters=4, batch_size=batch_size)
+        xception = models.Xception_model(model_input_dim, test_num=test_num, output_parameters=4, batch_size=batch_size, directory="models/augmentation")
         if "None" not in augmentation:
             xception.train_model(eye_data_generator_train, eye_data_generator_val)
         else:
             # train model with data loaded into memory 
             xception.train_model_memory(train_images, train_labels, val_images, val_labels)
-        xception.plot_loss_curves()        
+        xception.plot_loss_curves(directory="models/augmentation")        

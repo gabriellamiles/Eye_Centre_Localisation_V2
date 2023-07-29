@@ -13,7 +13,13 @@ img_folder = os.path.join(root_folder, "data", "processed", "mnt", "eme2_square_
 
 files_to_amend = []
 for filepath in label_filepaths:
+    print(filepath)
     df = pd.read_csv(filepath)
+
+    if os.path.exists(filepath.replace("combined_labels", "checked_labels")): 
+        print("Already reviewed:" + str(filepath) +".")
+        continue
+    
     correctness= []
     for row in range(df.shape[0]):
 

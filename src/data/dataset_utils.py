@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 
 def retrieve_csv_filepaths_from_directory(directory):
 
@@ -10,3 +11,14 @@ def retrieve_csv_filepaths_from_directory(directory):
             csv_filepaths.append(tmp)
 
     return csv_filepaths
+
+def load_and_concatenate_list_of_df(list_of_df):
+
+    fin_df = pd.DataFrame()
+
+    for filepath in list_of_df:
+        
+        df = pd.read_csv(filepath)
+        fin_df = pd.concat([fin_df, df], axis=0)
+
+    return fin_df

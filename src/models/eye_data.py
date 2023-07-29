@@ -1,11 +1,12 @@
 import os
 
 import numpy as np
+import pandas as pd
+
 import config
 from sklearn.model_selection import train_test_split, KFold
 from PIL import Image
 from keras.utils import load_img, img_to_array
-
 
 class Dataset():
     def __init__(self,
@@ -17,10 +18,18 @@ class Dataset():
             self.labels = None
 
         self.get_eye_centres()
-        self.get_left_eye_centres()
-        self.get_right_eye_centres()
+
+        try:
+            self.get_left_eye_centres()
+            self.get_right_eye_centres()
+            self.combine_left_right_single_eyes()
+            print(self.left_eye_centres.shape, self.right_eye_centres.shape)
+        except:
+            print("No bounding boxes detected.")
         
-        print("Extracted eye centres...")
+    def combine_left_right_single_eyes(self):
+
+        self.single_eye_df = pd.concat([self.left_eye_centres, self.right_eye_centres], axis=0)
 
     def get_eye_centres(self):
         """ Returns absolute eye centres."""
@@ -29,28 +38,26 @@ class Dataset():
     def get_left_eye_centres(self):
         """Returns only left eye centres (relative to bounding box)"""
         self.left_eye_centres = self.labels[["filename", "lx", "ly", "relative_lx", "relative_ly"]]
+        self.left_eye_centres["filename"] = self.left_eye_centres["filename"].str.replace(".jpg", "_left.jpg")
+        self.left_eye_centres = self.left_eye_centres.rename(columns={"lx":"orig_x", "ly":"orig_y", "relative_lx":"x", "relative_ly":"y"})
     
     def get_right_eye_centres(self):
         """Returns only right eye centres (relative to bounding box)"""
         self.right_eye_centres = self.labels[["filename", "rx", "ry", "relative_rx", "relative_ry"]]
+        self.right_eye_centres["filename"] = self.right_eye_centres["filename"].str.replace(".jpg", "_right.jpg")
+        self.right_eye_centres = self.right_eye_centres.rename(columns={"rx":"orig_x", "ry":"orig_y", "relative_rx":"x", "relative_ry":"y"})
 
     def get_train_val_test(self, labels=None):
         """ Function splits labels into train/validation/test labels. """
-        print("Hello")
         if labels is None:
             labels = self.labels
         # train/test/validation split -- 0.6/0.2/0.2
-        self.train_labels, self.test_labels = train_test_split(labels, test_size=0.2) # split into test and train
-        # train_labels, val_labels = train_test_split(train_labels, test_size=0.2) # split into train and val
-    
-        # train_filenames, val_filenames = train_labels[config.filename], val_labels[config.filename]
-        # train_labels, val_labels = train_labels[config.eye_centre_cols], val_labels[config.eye_centre_cols]
-
-        # self.train_labels = train_labels/960.0 # get ratio of position in original image
-        # val_labels = val_labels/960.0
+        self.full_train_labels, self.test_labels = train_test_split(labels, test_size=0.2, shuffle=42) # split into test and train
+        self.train_labels, self.val_labels = train_test_split(self.full_train_labels, test_size=0.2, shuffle=42)
 
         # add code to save test data set
         self.save_test_data()
+        self.save_train_data()
 
     def get_k_folds(self, data=None):
         """Split labels into specific folds of data as relevant"""
@@ -146,10 +153,14 @@ class Dataset():
         """ Saves csv file containing test split (filenames + targets)."""        
         self.test_labels.to_csv(config.test_split_save_location)
 
+    def save_train_data(self):
+        self.train_labels.to_csv(config.train_split_save_location)
+
     def remove_blinks(self):
         """ Removes blinks from data """
 
         self.eye_centres_no_blinks = self.eye_centres[(self.eye_centres["rx"] > 50) & (self.eye_centres["ly"] > 50) & (self.eye_centres["ry"] > 50)]
+        print(self.eye_centres_no_blinks.shape)
 
     def remove_blinks_single_eye(self, eye_data, eye):
 
