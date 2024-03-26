@@ -180,7 +180,7 @@ if __name__ == '__main__':
     #     inception_estimator.save_results(test_labels, test_filenames)
 
     # load desired model
-    weights_filepath = os.path.join(os.getcwd(), "models/single_eye/test_0_inception_20230702_060538/49-0.0003.hdf5")
+    weights_filepath = os.path.join(os.getcwd(), "models/single_eye_original/test_0_inception_20230701_143553/39-0.0001.hdf5")
     inception_estimator = models.Inception_model((img_dim, img_dim, 3), test_num=0, output_parameters=2, batch_size=batch_size, directory="models/single_eye")
     inception_estimator.build_model(0)
     inception_estimator.base_model_trainable()
@@ -188,19 +188,10 @@ if __name__ == '__main__':
     inception_estimator.compile_model()
 
     # predict on unseen data
-    prediction_folder_csv_files = os.path.join(os.getcwd(), "data", "raw", "all_patches")
+    prediction_folder_csv_files = os.path.join(os.getcwd(), "data", "raw", "right_eye_predictions")
 
-    # labels for my computer
-    csv_files_to_label = ['001_0.csv', '001_1.csv', '002_1.csv', '004_1.csv', '004_3.csv', '005_1.csv', '005_2.csv', '005_3.csv', '006_0.csv', '006_1.csv', '006_2.csv', '006_3.csv', '008_0.csv', '008_1.csv', '009_2.csv', '009_3.csv', '010_0.csv', '010_2.csv', '012_0.csv', '012_3.csv', '013_2.csv', '013_3.csv', '014_1.csv', '015_0.csv', '015_1.csv', '015_2.csv', '016_0.csv', '016_3.csv', '018_0.csv', '018_1.csv', '018_2.csv', '018_3.csv', '019_1.csv', '020_3.csv', '021_0.csv', '021_1.csv', '021_2.csv', '022_2.csv', '022_3.csv', '024_2.csv', '024_3.csv', '025_1.csv', '025_3.csv', '026_1.csv', '026_2.csv', '027_1.csv', '028_0.csv', '028_1.csv', '029_0.csv', '029_2.csv', '030_1.csv', '031_0.csv', '031_1.csv', '031_2.csv', '032_1.csv', '032_3.csv', '033_1.csv', '033_2.csv', '033_3.csv', '034_1.csv', '034_3.csv', '035_2.csv', '036_1.csv', '036_2.csv', '037_1.csv', '037_3.csv', '039_1.csv', '039_2.csv', '040_0.csv', '040_1.csv', '040_2.csv', '041_2.csv', '042_1.csv', '042_2.csv', '042_3.csv', '043_0.csv', '043_2.csv', '043_3.csv', '044_0.csv', '044_3.csv', '045_1.csv', '046_3.csv', '047_0.csv', '047_3.csv', '048_0.csv', '048_3.csv', '049_0.csv', '049_2.csv', '050_1.csv', '050_3.csv', '051_0.csv', '051_1.csv', '051_3.csv']
-    
-    # labels for the beast
-    # csv_files_to_label = ['052_1.csv', '053_1.csv', '053_2.csv', '053_3.csv', '054_1.csv', '055_0.csv', '055_1.csv', '056_2.csv', '056_3.csv', '057_1.csv', '057_3.csv', '058_0.csv', '060_0.csv', '060_3.csv', '062_1.csv', '062_2.csv', '063_0.csv', '063_1.csv', '063_2.csv', '064_1.csv', '064_2.csv', '064_3.csv', '065_2.csv', '065_3.csv', '066_0.csv', '066_2.csv', '068_3.csv', '070_0.csv', '070_2.csv', '070_3.csv', '071_3.csv', '072_0.csv', '072_1.csv', '072_2.csv', '072_3.csv', '073_0.csv', '073_2.csv', '073_3.csv', '074_1.csv', '074_3.csv', '075_2.csv', '075_3.csv', '077_1.csv', '077_3.csv', '200_1.csv', '200_2.csv', '200_3.csv', '202_0.csv', '202_1.csv', '202_3.csv', '203_3.csv', '204_0.csv', '205_0.csv', '205_3.csv', '206_3.csv', '207_0.csv', '207_1.csv', '208_0.csv', '208_2.csv', '208_3.csv', '209_0.csv', '209_2.csv', '209_3.csv', '210_0.csv', '210_2.csv', '211_1.csv', '211_2.csv', '211_3.csv', '212_0.csv', '212_1.csv', '212_2.csv', '213_0.csv', '213_2.csv', '214_0.csv', '214_3.csv', '216_1.csv', '216_3.csv', '217_2.csv', '218_0.csv', '218_1.csv', '221_2.csv', '222_0.csv', '222_1.csv', '222_3.csv', '225_0.csv', '225_1.csv', '225_3.csv', '226_0.csv', '226_2.csv', '226_3.csv', '227_1.csv', '227_2.csv', '229_3.csv']
-
-    csv_filepaths = [os.path.join(prediction_folder_csv_files, i) for i in csv_files_to_label]
-
-    # print(csv_filepaths)
-    # csv_filepaths = [os.path.join(prediction_folder_csv_files, i) for i in os.listdir(prediction_folder_csv_files)]
-    img_folder = os.path.join(os.getcwd().replace("Eye_Centre_Localisation_V2", "Eye_Region_Detection"), "data", "processed", "mnt", "eye_patches")
+    csv_filepaths = [os.path.join(prediction_folder_csv_files, i) for i in os.listdir(prediction_folder_csv_files)]
+    img_folder = os.path.join(os.getcwd(), "data", "processed", "mnt1", "eye_patches")
 
     predictions_still_to_make = []
     count = 0
@@ -253,7 +244,7 @@ if __name__ == '__main__':
 
         count += 1
 
-        if count == 5:
-            break
+    #     if count == 5:
+    #         break
 
 

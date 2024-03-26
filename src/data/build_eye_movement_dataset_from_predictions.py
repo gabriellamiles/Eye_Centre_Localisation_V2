@@ -53,6 +53,8 @@ if __name__ == '__main__':
 
     print(len(bounding_box_data), len(eye_centre_data), len(matched_data))
 
+    contains_nan = []
+
     # for given participants load csv files
     for filename in matched_data:
         print(filename)
@@ -76,6 +78,10 @@ if __name__ == '__main__':
         left_eye_df = left_eye_df.sort_values(by=["filename"], inplace=False, ignore_index=True)
         bounding_box_df = bounding_box_df.sort_values(by=["filename"], inplace=False, ignore_index=True)
 
+        if right_eye_df.shape[0] != left_eye_df.shape[0]:
+            continue
+
+
         # print(right_eye_df.head())
         # print(left_eye_df.head())
         # print(bounding_box_df.head())
@@ -85,36 +91,51 @@ if __name__ == '__main__':
     #     left_eye_df[["x", "y"]] = (left_eye_df[["x", "y"]]/224)*324
 
     #     # check largest bounding box size
-        bounding_box_df['l_width'] = bounding_box_df['resized_LE_right'] - bounding_box_df['resized_LE_left']
-        bounding_box_df['r_width'] = bounding_box_df['resized_RE_right'] - bounding_box_df['resized_RE_left']
-        bounding_box_df['l_height'] = bounding_box_df['resized_LE_bottom'] - bounding_box_df['resized_LE_top']
-        bounding_box_df['r_height'] = bounding_box_df['resized_RE_bottom'] - bounding_box_df['resized_RE_top']
-
-
-        cols = bounding_box_df.columns.to_list() + ["rel_lx", "rel_ly", "rel_rx", "rel_ry"]
+        # bounding_box_df['l_width'] = bounding_box_df['resized_LE_right'] - bounding_box_df['resized_LE_left']
+        # bounding_box_df['r_width'] = bounding_box_df['resized_RE_right'] - bounding_box_df['resized_RE_left']
+        # bounding_box_df['l_height'] = bounding_box_df['resized_LE_bottom'] - bounding_box_df['resized_LE_top']
+        # bounding_box_df['r_height'] = bounding_box_df['resized_RE_bottom'] - bounding_box_df['resized_RE_top']
+        # cols = bounding_box_df.columns.to_list() + ["rel_lx", "rel_ly", "rel_rx", "rel_ry"]
 
         # combine dataframes
-        combined_dataframe = pd.concat([bounding_box_df, left_eye_df[["pred_x", "pred_y"]], right_eye_df[["pred_x", "pred_y"]]], axis=1)
-        combined_dataframe.columns = cols
+        # combined_dataframe = pd.concat([bounding_box_df, left_eye_df[["pred_x", "pred_y"]], right_eye_df[["pred_x", "pred_y"]]], axis=1)
+        combined_dataframe = pd.concat([left_eye_df, right_eye_df], axis=1)
+        # combined_dataframe.columns = cols
+
+        check_nan = combined_dataframe.isnull().values.any()
+
+        df1 = combined_dataframe[combined_dataframe.isna().any(axis=1)]
+        df2 = right_eye_df[right_eye_df.isna().any(axis=1)]
+        df3 = left_eye_df[left_eye_df.isna().any(axis=1)]
+        
+        if df1.shape[0]>500:
+
+            print(df1.shape, df2.shape, df3.shape)
+            print(left_eye_df.shape, right_eye_df.shape)
+            print(df1.head())
+            contains_nan.append(filename)
+
 
     #     combined_dataframe["rel_lx"] = combined_dataframe["tmp_lx"]-combined_dataframe["cropped_im_left_padding"]
     #     combined_dataframe["rel_ly"] = combined_dataframe["tmp_ly"]-combined_dataframe["cropped_im_left_top_padding"]
     #     combined_dataframe["rel_rx"] = combined_dataframe["tmp_rx"]-combined_dataframe["cropped_im_right_padding"]        
     #     combined_dataframe["rel_ry"] = combined_dataframe["tmp_ry"]-combined_dataframe["cropped_im_right_top_padding"]
 
-        combined_dataframe["abs_lx"] = combined_dataframe["rel_lx"] + combined_dataframe["resized_LE_left"]
-        combined_dataframe["abs_ly"] = combined_dataframe["rel_ly"] + combined_dataframe["resized_LE_top"]
-        combined_dataframe["abs_rx"] = combined_dataframe["rel_rx"] + combined_dataframe["resized_RE_left"]
-        combined_dataframe["abs_ry"] = combined_dataframe["rel_ry"] + combined_dataframe["resized_RE_top"]        
+    #     combined_dataframe["abs_lx"] = combined_dataframe["rel_lx"] + combined_dataframe["resized_LE_left"]
+    #     combined_dataframe["abs_ly"] = combined_dataframe["rel_ly"] + combined_dataframe["resized_LE_top"]
+    #     combined_dataframe["abs_rx"] = combined_dataframe["rel_rx"] + combined_dataframe["resized_RE_left"]
+    #     combined_dataframe["abs_ry"] = combined_dataframe["rel_ry"] + combined_dataframe["resized_RE_top"]        
 
-        # print(combined_dataframe.head())
+    #     # print(combined_dataframe.head())
 
-        # print(combined_dataframe.head())
-    #     # preprocess data (i.e. set blinks to zero)
+    #     # print(combined_dataframe.head())
+    # #     # preprocess data (i.e. set blinks to zero)
 
-        # save data at relevant save location
-        save_dataframe = combined_dataframe[["filename", "abs_lx", "abs_ly", "abs_rx", "abs_ry"]]
-        save_dataframe.to_csv(os.path.join(save_folder, os.path.basename(filename)))
+    #     # save data at relevant save location
+    #     save_dataframe = combined_dataframe[["filename", "abs_lx", "abs_ly", "abs_rx", "abs_ry"]]
+    #     save_dataframe.to_csv(os.path.join(save_folder, os.path.basename(filename)))
 
+    print(len(contains_nan))
+    print(contains_nan)
 
 

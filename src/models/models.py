@@ -61,7 +61,7 @@ class DL_model():
         else:
             self.directory = None    
 
-        self.epochs = 20
+        self.epochs = 200
 
     def initiate_callbacks(self):
         """ Function to initiate callbacks, allowing recording of intermediate training results

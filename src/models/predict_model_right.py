@@ -158,7 +158,7 @@ if __name__ == '__main__':
     root_folder = os.getcwd()
     img_folder = os.path.join(root_folder, "data", "processed", "test_data", "imgs")
     test_csv_filepath = os.path.join(root_folder, "data", "processed", "test_data", "labels.csv")
-    unseen_folder = os.path.join(root_folder, "data", "processed", "mnt", "cropped_eye_imgs", "right_eye")
+    unseen_folder = os.path.join(root_folder, "data", "processed", "mnt1", "eye_patches")
 
     # load and compile trained model~
     print("[INFO] Loading trained model...")
@@ -191,6 +191,7 @@ if __name__ == '__main__':
 
     if UNSEEN:
         participant_folders = [os.path.join(unseen_folder, directory) for directory in os.listdir(unseen_folder)]
+        list_of_participants = ["013", "005", "036", "070", "006", "029"]
         trial_folders = []
 
         for participant in participant_folders:
@@ -198,33 +199,37 @@ if __name__ == '__main__':
             if "zi" in participant:
                 continue
 
-            for trial_folder in os.listdir(participant):
+            if participant in list_of_participants: 
 
-                trial_folders.append(os.path.join(participant, trial_folder))
+                for trial_folder in os.listdir(participant):
 
-        count = 0
-        # print(trial_folders)
-        for trial_folder in trial_folders:
+                    trial_folders.append(os.path.join(participant, trial_folder))
+                
+                print(participant)
 
-            # initialise key filepaths
-            save_directory = os.path.join(root_folder, "models", model_directory, "predictions", "right_eye")
-            if not os.path.exists(save_directory):
-                os.makedirs(save_directory)
-            csv_save_name = trial_folder.split("/")[-2] + "_" + trial_folder.split("/")[-1] + ".csv"
-            if os.path.exists(os.path.join(save_directory, csv_save_name)):
-                print(csv_save_name + " already predicted, moving on!")
-                continue
-            print("[INFO] Predictions saved under: " + str(os.path.join(save_directory, csv_save_name)))
+        # count = 0
+        # # print(trial_folders)
+        # for trial_folder in trial_folders:
 
-            # get list of filenames for single trial
-            print("[INFO] Loading unseen data...:" + str(trial_folder))
-            img_filenames = os.listdir(trial_folder)
-            img_filenames = [os.path.join(trial_folder, img_filename) for img_filename in img_filenames]
+        #     # initialise key filepaths
+        #     save_directory = os.path.join(root_folder, "models", model_directory, "predictions", "right_eye")
+        #     if not os.path.exists(save_directory):
+        #         os.makedirs(save_directory)
+        #     csv_save_name = trial_folder.split("/")[-2] + "_" + trial_folder.split("/")[-1] + ".csv"
+        #     if os.path.exists(os.path.join(save_directory, csv_save_name)):
+        #         print(csv_save_name + " already predicted, moving on!")
+        #         continue
+        #     print("[INFO] Predictions saved under: " + str(os.path.join(save_directory, csv_save_name)))
 
-            print(len(img_filenames))
-            pred_df = predict_on_unseen_data(img_filenames, model)
-            pred_df.to_csv(os.path.join(save_directory, csv_save_name))
+        #     # get list of filenames for single trial
+        #     print("[INFO] Loading unseen data...:" + str(trial_folder))
+        #     img_filenames = os.listdir(trial_folder)
+        #     img_filenames = [os.path.join(trial_folder, img_filename) for img_filename in img_filenames]
 
-            count +=1
-            if count == 4:
-                break
+        #     print(len(img_filenames))
+        #     pred_df = predict_on_unseen_data(img_filenames, model)
+        #     pred_df.to_csv(os.path.join(save_directory, csv_save_name))
+
+        #     count +=1
+        #     if count == 4:
+        #         break

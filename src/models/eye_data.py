@@ -52,8 +52,8 @@ class Dataset():
         if labels is None:
             labels = self.labels
         # train/test/validation split -- 0.6/0.2/0.2
-        self.full_train_labels, self.test_labels = train_test_split(labels, test_size=0.2, shuffle=42) # split into test and train
-        self.train_labels, self.val_labels = train_test_split(self.full_train_labels, test_size=0.2, shuffle=42)
+        self.train_labels, self.test_labels = train_test_split(labels, test_size=0.2, shuffle=42) # split into test and train
+        # self.train_labels, self.val_labels = train_test_split(self.full_train_labels, test_size=0.2, shuffle=42)
 
         # add code to save test data set
         self.save_test_data()
@@ -164,14 +164,14 @@ class Dataset():
 
     def remove_blinks_single_eye(self, eye_data, eye):
 
-        x = "lx"
-        y = "ly"
+        x = "x"
+        y = "y"
 
-        if eye == "right":
-            x = "rx"
-            y = "ry"
+        # if eye == "right":
+        #     x = "rx"
+        #     y = "ry"
 
         print(eye_data.columns)
         print("*****************************")
         self.single_eye_no_blinks = eye_data[(eye_data[x]>50) & (eye_data[y]>50)]
-        self.single_eye_no_blinks = self.single_eye_no_blinks[["filename", "relative_"+x, "relative_"+y]]
+        self.single_eye_no_blinks = self.single_eye_no_blinks[["filename", "x", "y"]]

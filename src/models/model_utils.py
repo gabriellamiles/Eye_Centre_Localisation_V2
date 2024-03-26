@@ -37,7 +37,7 @@ def load_images(img_root_folder):
 
     return img_folders
 
-def load_csv_files_from_list(labels_filepaths, columns=["filename", "relative_LE_left", "relative_LE_top", "relative_LE_right", "relative_LE_bottom", "relative_RE_left", "relative_RE_top", "relative_RE_right", "relative_RE_bottom", "lx", "ly", "rx", "ry", "relative_lx", "relative_ly", "relative_rx", "relative_ry"]):
+def load_csv_files_from_list(labels_filepaths, columns=["filename", "resized_LE_left", "resized_LE_top", "resized_LE_right", "resized_LE_bottom", "resized_RE_left", "resized_RE_top", "resized_RE_right", "resized_RE_bottom", "lx", "ly", "rx", "ry", "relative_lx", "relative_ly", "relative_rx", "relative_ry"]):
 
     list_of_df = []
 

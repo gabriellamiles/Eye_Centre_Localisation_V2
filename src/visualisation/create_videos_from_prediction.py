@@ -14,8 +14,11 @@ def load_csv_files_from_directory(directory):
 
     for i in os.listdir(directory):
         tmp_filepath = os.path.join(directory, i)
-        tmp_df = pd.read_csv(tmp_filepath)[["filename", "pred_x", "pred_y"]]
-        list_of_df.append(tmp_df)
+        try:
+            tmp_df = pd.read_csv(tmp_filepath)[["filename", "pred_x", "pred_y"]]
+            list_of_df.append(tmp_df)
+        except:
+            print("couldn't load: " +str(i))
 
     return list_of_df
 

@@ -41,86 +41,81 @@ class CustomDataGenerator(tf.keras.utils.Sequence):
         full_start = time.time()
 
         for id in range(len(batch_IDs)):
-
-            start = time.time()
-
             # load image
             path = os.path.join(self.root_directory, batch_IDs.iloc[id, 0])
-            image = tf.keras.preprocessing.image.load_img(path, color_mode="rgb", target_size=(self.img_dim, self.img_dim))
-            image = tf.keras.preprocessing.image.img_to_array(image).astype(int)
-            # load_img_time = time.time()
-            
-            # extract augmentations
-            # if "horizontal shift" in self.augmentation:
-            #     horizontal_shift = (random.randrange(-15, 15)/100)*self.img_dim # up to 20% of width of image
-            # if "vertical shift" in self.augmentation:
-            #     vertical_shift = (random.randrange(-45, 45)/100)*self.img_dim
-            # if "rotation" in self.augmentation:
-            #     rotation_shift = (random.randrange(-20, 20))
-            
-            # check_augmentations_ti/me = time.time()
-            # if "brightness" in self.augmentation:
-            #     brightness_shift = (random.randrange(-5, 5)/100)
-            #     image = tf.image.adjust_brightness(image, delta=brightness_shift)
-            # if "contrast" in self.augmentation:
-            #     contrast_shift=(random.randrange(0, 3)/10)
-            #     image = tf.image.adjust_contrast(image, contrast_shift)
-            # if "colour" in self.augmentation:
-            #     hue_shift=(random.randrange(0,10)/100)
-            #     image = tf.image.adjust_hue(image, hue_shift)
+            try:
+                image = tf.keras.preprocessing.image.load_img(path, color_mode="rgb", target_size=(self.img_dim, self.img_dim))
+                image = tf.keras.preprocessing.image.img_to_array(image).astype(int)
+                # load_img_time = time.time()
+                
+                # extract augmentations
+                # if "horizontal shift" in self.augmentation:
+                #     horizontal_shift = (random.randrange(-15, 15)/100)*self.img_dim # up to 20% of width of image
+                # if "vertical shift" in self.augmentation:
+                #     vertical_shift = (random.randrange(-45, 45)/100)*self.img_dim
+                # if "rotation" in self.augmentation:
+                #     rotation_shift = (random.randrange(-20, 20))
+                
+                # check_augmentations_ti/me = time.time()
+                # if "brightness" in self.augmentation:
+                #     brightness_shift = (random.randrange(-5, 5)/100)
+                #     image = tf.image.adjust_brightness(image, delta=brightness_shift)
+                # if "contrast" in self.augmentation:
+                #     contrast_shift=(random.randrange(0, 3)/10)
+                #     image = tf.image.adjust_contrast(image, contrast_shift)
+                # if "colour" in self.augmentation:
+                #     hue_shift=(random.randrange(0,10)/100)
+                #     image = tf.image.adjust_hue(image, hue_shift)
 
+                
+                
+                ###### THIS SECTION TAKES ABOUT 90% OF THE TIME
+                # apply augmentations
+                # if "horizontal shift" in self.augmentation:
+                #     image = ndimage.shift(image, (0, horizontal_shift, 0)) # shift is given in pixels
+                # if "vertical shift" in self.augmentation:
+                #     image = ndimage.shift(image, (vertical_shift, 0, 0)) # shift is given in pixels
+                # if "rotation" in self.augmentation:
+                #     image = ndimage.rotate(image, rotation_shift, reshape=False)
+                ##### ABOVE SECTION TAKES ABOUT 90% OF THE TIME
+                
+                images.append(image)
+                # apply_aug_time = time.time()
+                
             
-            
-            ###### THIS SECTION TAKES ABOUT 90% OF THE TIME
-            # apply augmentations
-            # if "horizontal shift" in self.augmentation:
-            #     image = ndimage.shift(image, (0, horizontal_shift, 0)) # shift is given in pixels
-            # if "vertical shift" in self.augmentation:
-            #     image = ndimage.shift(image, (vertical_shift, 0, 0)) # shift is given in pixels
-            # if "rotation" in self.augmentation:
-            #     image = ndimage.rotate(image, rotation_shift, reshape=False)
-            ##### ABOVE SECTION TAKES ABOUT 90% OF THE TIME
-            
-            images.append(image)
-            # apply_aug_time = time.time()
-            
-        
-            # load labels
-            lx = batch_labels.iloc[id, 0]*(self.img_dim/960)+horizontal_shift  # don't remove self.img_dim and replace with 1
-            ly = batch_labels.iloc[id, 1]*(self.img_dim/960)+vertical_shift
-            rx = batch_labels.iloc[id, 2]*(self.img_dim/960)+horizontal_shift
-            ry = batch_labels.iloc[id, 3]*(self.img_dim/960)+vertical_shift
+                # load labels
+                lx = batch_labels.iloc[id, 0]*(self.img_dim/960)+horizontal_shift  # don't remove self.img_dim and replace with 1
+                ly = batch_labels.iloc[id, 1]*(self.img_dim/960)+vertical_shift
+                rx = batch_labels.iloc[id, 2]*(self.img_dim/960)+horizontal_shift
+                ry = batch_labels.iloc[id, 3]*(self.img_dim/960)+vertical_shift
 
-            lx, ly = self.rotate((lx, ly), rotation_shift*(math.pi/180), (self.img_dim/2, self.img_dim/2))
-            rx, ry = self.rotate((rx, ry), rotation_shift*(math.pi/180), (self.img_dim/2, self.img_dim/2))
+                # lx, ly = self.rotate((lx, ly), rotation_shift*(math.pi/180), (self.img_dim/2, self.img_dim/2))
+                # rx, ry = self.rotate((rx, ry), rotation_shift*(math.pi/180), (self.img_dim/2, self.img_dim/2))
 
-            # get lx, ly, rx, ry relative to size of image
-            lx = lx/self.img_dim
-            ly = ly/self.img_dim
-            rx = rx/self.img_dim
-            ry = ry/self.img_dim
+                # get lx, ly, rx, ry relative to size of image
+                lx = lx/self.img_dim
+                ly = ly/self.img_dim
+                rx = rx/self.img_dim
+                ry = ry/self.img_dim
 
-            update_labels_time = time.time()
+                tmp_eye = np.array([lx, ly, rx, ry])
+                labels.append(tmp_eye)
+                self.val_labels.append(tmp_eye)
 
-            tmp_eye = np.array([lx, ly, rx, ry])
-            labels.append(tmp_eye)
-            self.val_labels.append(tmp_eye)
-
-            # print("load img: " + str(load_img_time-start))
-            # print("check aug time: " + str(check_augmentations_time-load_img_time))
-            # print("apply aug time: " + str(apply_aug_time-check_augmentations_time))
-            # print("update labels time: " + str(update_labels_time-apply_aug_time))
-            
-            end_one_img = time.time()
-            # print("full processing one im: " + str(end_one_img-start))
+                # print("load img: " + str(load_img_time-start))
+                # print("check aug time: " + str(check_augmentations_time-load_img_time))
+                # print("apply aug time: " + str(apply_aug_time-check_augmentations_time))
+                # print("update labels time: " + str(update_labels_time-apply_aug_time))
+                
+                # print("full processing one im: " + str(end_one_img-start))
+            except:
+                print("Image not found... " + str(path))
+                pass
 
         
         # convert list of labels to numpy array0
         labels = np.array(labels)
         images = np.array(images)
-
-        
-        end_one_batch = time.time()
 
         # print("full batch processing time: " + str(end_one_batch- full_start))
         return (images, labels)

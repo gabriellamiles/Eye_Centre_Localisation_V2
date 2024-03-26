@@ -20,15 +20,15 @@ def edit_imgs(fin_df, img_folder, save_folder):
         # cv2.imshow("im", im)
         # cv2.waitKey(0)
 
-        le_left = fin_df["relative_LE_left"].iloc[i]
-        le_right = fin_df["relative_LE_right"].iloc[i]
-        le_bottom = fin_df["relative_LE_bottom"].iloc[i]
-        le_top = fin_df["relative_LE_top"].iloc[i]
+        le_left = int(fin_df["resized_LE_left"].iloc[i])
+        le_right = int(fin_df["resized_LE_right"].iloc[i])
+        le_bottom = int(fin_df["resized_LE_bottom"].iloc[i])
+        le_top = int(fin_df["resized_LE_top"].iloc[i])
     
-        re_left = fin_df["relative_RE_left"].iloc[i]
-        re_right = fin_df["relative_RE_right"].iloc[i]
-        re_bottom = fin_df["relative_RE_bottom"].iloc[i]
-        re_top = fin_df["relative_RE_top"].iloc[i]
+        re_left = int(fin_df["resized_RE_left"].iloc[i])
+        re_right = int(fin_df["resized_RE_right"].iloc[i])
+        re_bottom = int(fin_df["resized_RE_bottom"].iloc[i])
+        re_top = int(fin_df["resized_RE_top"].iloc[i])
 
         left_crop = im[le_top:le_bottom, le_left:le_right]
 
@@ -70,22 +70,21 @@ def edit_imgs(fin_df, img_folder, save_folder):
 
         # cv2.waitKey(0)
 
-
-
-
-
 if __name__ == '__main__':
 
     # initialise key filepaths
     root_folder = os.getcwd()
     save_folder = os.path.join(root_folder, "cropped_imgs")
-    labels_folder = os.path.join(root_folder, "data", "raw", "final_dataset")
-    img_folder = os.path.join(root_folder, "data", "processed", "mnt", "eme2_square_imgs")
-    img_folder = img_folder.replace("Eye_Centre_Localisation_V2", "Eye_Region_Detection")
+    labels_folder = os.path.join(root_folder, "data", "raw", "resized_bb")
+    img_folder = os.path.join(root_folder, "data", "processed", "mnt1", "eme2_square_imgs")
+    # img_folder = img_folder.replace("Eye_Centre_Localisation_V2", "Eye_Region_Detection")
 
     # get data
     all_label_filepaths = dataset_utils.retrieve_csv_filepaths_from_directory(labels_folder)
+    print(len(all_label_filepaths))
     fin_df = dataset_utils.load_and_concatenate_list_of_df(all_label_filepaths)
+
+    print(fin_df)
 
     # get and save images 
     edit_imgs(fin_df, img_folder, save_folder)
